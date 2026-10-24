@@ -1,0 +1,46 @@
+﻿<ui:FluentWindow  x:Class="Pinball_Aegis.MainWindow"
+                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                  xmlns:views="clr-namespace:Pinball_Aegis.Views"
+                  Title="Aegis - WorldPinball Operator Control" 
+                  Height="700" Width="1100"
+                  WindowStartupLocation="CenterScreen"
+                  WindowBackdropType="Mica"
+                  ExtendsContentIntoTitleBar="True">
+
+    <Grid>
+        <!-- Modern Windows 11 Navigation View -->
+        <ui:NavigationView x:Name="RootNavigation">
+            
+            <ui:NavigationView.MenuItems>
+                <!-- 1. Fleet tab (future) -->
+                <ui:NavigationViewItem Content="Flotte &amp; Machines" 
+                                       Icon="{ui:SymbolIcon Desktop24}"
+                                       TargetPageType="{x:Type views:FleetView}"
+                                       />
+                
+                <!-- 2. Security & TPM tab (points to our Page) -->
+                <ui:NavigationViewItem Content="Sécurité &amp; TPM" 
+                                       Icon="{ui:SymbolIcon ShieldCheckmark24}" 
+                                       TargetPageType="{x:Type views:MachineAttestationView}" />
+                
+                <!-- 3. Audit Logs tab (future) -->
+                <ui:NavigationViewItem Content="Journaux / Audit" 
+                                       Icon="{ui:SymbolIcon DocumentText24}"
+                                       TargetPageType="{x:Type views:AuditLogsView}"
+                                       />
+            </ui:NavigationView.MenuItems>
+            <!-- Footer Menu Items: Active Operator Profile -->
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem Content="Opérateur : Alice Martin (FieldTech)" 
+                                       Icon="{ui:SymbolIcon Person24}" />
+            </ui:NavigationView.FooterMenuItems>
+        </ui:NavigationView>
+        
+        
+    </Grid>
+    
+    
+
+</ui:FluentWindow>

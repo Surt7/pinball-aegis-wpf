@@ -1,0 +1,33 @@
+﻿<Page x:Class="Pinball_Aegis.Views.AuditLogsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Journaux &amp; Audit">
+
+    <Grid Margin="25">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+            
+            <!-- Audit logs overview card -->
+            <ui:Card Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Journal d'Audit Cryptographique" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
+                               Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Événements scellés par signature TPM &amp; Tokens opérateurs." 
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,15"/>
+
+                    <!-- Action button -->
+                    <ui:Button Content="Exporter les preuves d'audit (.p7b)" 
+                               Icon="{ui:SymbolIcon ArrowDownload24}" 
+                               Appearance="Secondary"
+                               HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </ui:Card>
+            
+        </StackPanel>
+    </Grid>
+</Page>

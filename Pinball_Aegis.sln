@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pinball_Aegis.WpfClient", "Pinball_Aegis.WpfClient\Pinball_Aegis.WpfClient.csproj", "{A2297225-C0C9-46D4-B8BB-438FB2EECF2B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pinball_Aegis.Domain", "Pinball_Aegis.Domain\Pinball_Aegis.Domain.csproj", "{24EB081D-651D-4EE7-AA3F-C05F565062F9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pinball_Aegis.Infrastructure", "Pinball_Aegis.Infrastructure\Pinball_Aegis.Infrastructure.csproj", "{B3C6EAC0-CF91-4311-AEB8-1C9DB4CDFB61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pinball_Aegis.Application", "Pinball_Aegis.Application\Pinball_Aegis.Application.csproj", "{5B915018-A65F-4CDC-B80A-5656043BB1D4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2297225-C0C9-46D4-B8BB-438FB2EECF2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2297225-C0C9-46D4-B8BB-438FB2EECF2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2297225-C0C9-46D4-B8BB-438FB2EECF2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2297225-C0C9-46D4-B8BB-438FB2EECF2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24EB081D-651D-4EE7-AA3F-C05F565062F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24EB081D-651D-4EE7-AA3F-C05F565062F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24EB081D-651D-4EE7-AA3F-C05F565062F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24EB081D-651D-4EE7-AA3F-C05F565062F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3C6EAC0-CF91-4311-AEB8-1C9DB4CDFB61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3C6EAC0-CF91-4311-AEB8-1C9DB4CDFB61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3C6EAC0-CF91-4311-AEB8-1C9DB4CDFB61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3C6EAC0-CF91-4311-AEB8-1C9DB4CDFB61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B915018-A65F-4CDC-B80A-5656043BB1D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B915018-A65F-4CDC-B80A-5656043BB1D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B915018-A65F-4CDC-B80A-5656043BB1D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B915018-A65F-4CDC-B80A-5656043BB1D4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
