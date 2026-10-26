@@ -114,8 +114,7 @@
                                    Icon="{ui:SymbolIcon Add24}" 
                                    Appearance="Primary" 
                                    HorizontalAlignment="Stretch"
-                                   Command="{Binding ProvisionCommand}"
-                                   IsEnabled="{Binding IsProvisioning, Converter={x:Null}}"/>
+                                   Command="{Binding ProvisionCommand}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
