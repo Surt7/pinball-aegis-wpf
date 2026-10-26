@@ -25,6 +25,19 @@ public static class ApiRoutes
     {
         public const string Overview = "/api/v1/fleet/overview";
         public const string Machines = "/api/v1/admin/machines";
+        public const string Provision = "/api/v1/admin/machines/provision";
+    }
+
+    // IP Licenses endpoints
+    public static class Licenses
+    {
+        public const string IpLicenses = "/api/v1/ip-licenses";
+    }
+
+    // Operator Tokens endpoints
+    public static class OperatorTokens
+    {
+        public const string Create = "/api/v1/admin/operator-tokens";
     }
     
     // Keycloak Identity Provider endpoints (served through reverse proxy with valid TLS)

@@ -84,11 +84,31 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Serial number with copy and filter actions -->
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="N° de Série :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
+                            <!-- Machine ID with copy action -->
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="ID Machine :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
                             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding SelectedMachine.MachineId}" 
+                                           FontFamily="Consolas, monospace" 
+                                           FontWeight="SemiBold" 
+                                           FontSize="10" 
+                                           Foreground="#CBD5E1" 
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"/>
+                                <ui:Button Icon="{ui:SymbolIcon Copy16}" 
+                                           Appearance="Transparent" 
+                                           Padding="3" 
+                                           Margin="6,0,0,0" 
+                                           ToolTip="Copier cet ID Machine (UUID)" 
+                                           Command="{Binding CopyMachineIdCommand}" 
+                                           CommandParameter="{Binding SelectedMachine.MachineId}"/>
+                            </StackPanel>
+
+                            <!-- Serial number with copy and filter actions -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="N° de Série :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding SelectedMachine.SerialNumber}" 
                                            FontFamily="Consolas, monospace" 
                                            FontWeight="SemiBold" 
@@ -111,14 +131,14 @@
                                            CommandParameter="{Binding SelectedMachine.SerialNumber}"/>
                             </StackPanel>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Enregistré le :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMachine.RegisteredAtUtc, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Enregistré le :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMachine.RegisteredAtUtc, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Dernière MàJ :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMachine.LastUpdated, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Dernière MàJ :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMachine.LastUpdated, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Notes :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMachine.MachineNotes}" Foreground="#CBD5E1" FontSize="11" Margin="0,4" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Notes :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedMachine.MachineNotes}" Foreground="#CBD5E1" FontSize="11" Margin="0,4" TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
 

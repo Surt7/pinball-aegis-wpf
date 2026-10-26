@@ -28,6 +28,12 @@
                 <ui:NavigationViewItem Content="Attestation TPM" 
                                        Icon="{ui:SymbolIcon ShieldCheckmark24}" 
                                        TargetPageType="{x:Type local:Views.MachineAttestationView}" />
+                <ui:NavigationViewItem Content="Provisioning Flipper" 
+                                       Icon="{ui:SymbolIcon AddSquare24}" 
+                                       TargetPageType="{x:Type local:Views.ProvisionMachineView}" />
+                <ui:NavigationViewItem Content="Clés Opérateurs" 
+                                       Icon="{ui:SymbolIcon KeyMultiple24}" 
+                                       TargetPageType="{x:Type local:Views.OperatorTokensView}" />
             </ui:NavigationView.MenuItems>
 
             <!-- Les 3 Piliers de Sécurité dans le Footer (Chacun son bouton distinct) -->

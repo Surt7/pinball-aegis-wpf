@@ -218,6 +218,17 @@ public partial class MachineAttestationViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void CopyMachineId(Guid? machineId)
+    {
+        var id = machineId ?? SelectedMachine?.MachineId;
+        if (id.HasValue && id.Value != Guid.Empty)
+        {
+            Clipboard.SetText(id.Value.ToString());
+            StatusMessage = $"ID Machine '{id.Value}' copié dans le presse-papier !";
+        }
+    }
+
+    [RelayCommand]
     private void CopySerial(string? serial)
     {
         var toCopy = !string.IsNullOrEmpty(serial) ? serial : SelectedMachine?.SerialNumber;

@@ -1,0 +1,255 @@
+<Page x:Class="Pinball_Aegis.Views.OperatorTokensView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:viewmodels="clr-namespace:Pinball_Aegis.ViewModels"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1100"
+      Title="Clés Opérateurs">
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Clés Opérateurs d'Atelier &amp; Terrain" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <TextBlock Text="Émission de jetons d'autorisation pour techniciens et agents de maintenance terrain avec restrictions de périmètre." 
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12"/>
+        </StackPanel>
+
+        <!-- MAIN BODY -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT COLUMN: Generator Form -->
+            <Border Grid.Column="0" 
+                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="20"
+                    Margin="0,0,16,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="Paramètres de la Clé" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                        <!-- Token Name / Technician Label -->
+                        <TextBlock Text="Nom / Étiquette de la Clé *" FontSize="12" FontWeight="Medium" Margin="0,0,0,4"/>
+                        <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
+                                    PlaceholderText="Ex: Clé Technicien Atelier Sud" 
+                                    Margin="0,0,0,14"/>
+
+                        <!-- Validity (Days) -->
+                        <TextBlock Text="Durée de Validité (en jours) *" FontSize="12" FontWeight="Medium" Margin="0,0,0,4"/>
+                        <ui:TextBox Text="{Binding ValidityDays, UpdateSourceTrigger=PropertyChanged}" 
+                                    PlaceholderText="30" 
+                                    Margin="0,0,0,16"/>
+
+                        <!-- Scopes Selection -->
+                        <TextBlock Text="Périmètres d'Autorisation (Scopes)" FontSize="12" FontWeight="Medium" Margin="0,0,0,8"/>
+                        
+                        <Border Background="{DynamicResource ControlFillColorDefaultBrush}" 
+                                CornerRadius="6" 
+                                Padding="12" 
+                                Margin="0,0,0,20">
+                            <StackPanel>
+                                <CheckBox Content="Enrôlement Machine (enroll) - Autorise l'association d'un flipper au cloud" 
+                                          IsChecked="{Binding ScopeEnroll, Mode=TwoWay}"
+                                          Margin="0,0,0,8"/>
+                                <CheckBox Content="Diagnostics &amp; Télémétrie (diagnostics) - Autorise les tests matériels" 
+                                          IsChecked="{Binding ScopeDiagnostics, Mode=TwoWay}"
+                                          Margin="0,0,0,8"/>
+                                <CheckBox Content="Audit &amp; Journalisation (audit) - Consultation des logs sécurisés" 
+                                          IsChecked="{Binding ScopeAudit, Mode=TwoWay}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Error Banner (if any) -->
+                        <Border Background="#2D1515" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,16">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <DockPanel LastChildFill="True">
+                                <ui:SymbolIcon Symbol="DismissCircle24" Foreground="#EF4444" Margin="0,0,8,0" DockPanel.Dock="Left"/>
+                                <TextBlock Text="{Binding ErrorMessage}" Foreground="#FCA5A5" TextWrapping="Wrap" FontSize="12" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Action Button -->
+                        <ui:Button Appearance="Primary" 
+                                   Command="{Binding GenerateTokenCommand}" 
+                                   Height="38" 
+                                   HorizontalAlignment="Stretch">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Key24" Margin="0,0,8,0"/>
+                                <TextBlock Text="Générer la Clé Opérateur" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </ui:Button>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- RIGHT COLUMN: Generated Token Result / Guidance -->
+            <Border Grid.Column="1" 
+                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="20">
+                <Grid>
+                    <!-- State 1: When Result Available -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer.Style>
+                            <Style TargetType="ScrollViewer">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasResult}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ScrollViewer.Style>
+
+                        <StackPanel>
+                            <!-- Success Banner -->
+                            <Border Background="#132F20" BorderBrush="#10B981" BorderThickness="1" CornerRadius="8" Padding="14" Margin="0,0,0,16">
+                                <DockPanel LastChildFill="True">
+                                    <ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="#10B981" Margin="0,0,10,0" DockPanel.Dock="Left"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Clé Opérateur Émise" FontWeight="Bold" Foreground="#6EE7B7" FontSize="14"/>
+                                        <TextBlock Text="Ce jeton ne sera plus affiché en clair par la suite." Foreground="#A7F3D0" FontSize="11"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Token ID -->
+                            <TextBlock Text="Identifiant Clé (UUID)" FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding ResultTokenId}" FontFamily="Consolas" FontSize="12" Margin="0,0,0,12"/>
+
+                            <!-- Raw Token Box -->
+                            <TextBlock Text="Jeton Brut (Secret Opérateur)" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" 
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="6" 
+                                    Padding="10" 
+                                    Margin="0,0,0,12">
+                                <TextBox Text="{Binding ResultRawToken, Mode=OneWay}" 
+                                         FontFamily="Consolas" 
+                                         FontSize="12" 
+                                         IsReadOnly="True" 
+                                         TextWrapping="Wrap" 
+                                         Background="Transparent" 
+                                         BorderThickness="0"/>
+                            </Border>
+
+                            <!-- Copy Button -->
+                            <ui:Button Appearance="Secondary" 
+                                       Command="{Binding CopyTokenCommand}" 
+                                       HorizontalAlignment="Stretch" 
+                                       Height="36" 
+                                       Margin="0,0,0,16">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Copy20" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Copier la Clé dans le Presse-Papier"/>
+                                </StackPanel>
+                            </ui:Button>
+
+                            <!-- Expiry Info -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="10" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Symbol="Clock24" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" Margin="0,0,10,0"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Date d'Expiration" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                        <TextBlock Text="{Binding ResultExpiresAt}" FontWeight="SemiBold" FontSize="13"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Reset Button -->
+                            <ui:Button Appearance="Subtle" 
+                                       Command="{Binding ResetFormCommand}" 
+                                       HorizontalAlignment="Right" 
+                                       Content="Émettre une autre clé"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- State 2: Guidance / Idle when no result yet -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasResult}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <ui:SymbolIcon Symbol="KeyMultiple24" FontSize="48" Foreground="{DynamicResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <TextBlock Text="Gestion des Clés Opérateurs" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                        <TextBlock Text="Les clés d'opérateurs permettent d'autoriser les actions de maintenance, d'enrôlement ou de diagnostic directement sur site." 
+                                   TextWrapping="Wrap" 
+                                   TextAlignment="Center" 
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                                   MaxWidth="320" 
+                                   FontSize="12"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="Renseignez le formulaire à gauche pour générer un nouveau jeton cryptographique." 
+                                   TextWrapping="Wrap" 
+                                   TextAlignment="Center" 
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" 
+                                   MaxWidth="300" 
+                                   FontSize="11"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
+
+        <!-- FOOTER: Status Bar -->
+        <Border Grid.Row="2" Margin="0,16,0,0" Padding="8,4" Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="4">
+            <DockPanel LastChildFill="True">
+                <ui:ProgressRing IsIndeterminate="True" 
+                                 Width="14" Height="14" 
+                                 Margin="0,0,8,0" 
+                                 DockPanel.Dock="Left">
+                    <ui:ProgressRing.Style>
+                        <Style TargetType="ui:ProgressRing">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsGenerating}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:ProgressRing.Style>
+                </ui:ProgressRing>
+                <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+    </Grid>
+</Page>
