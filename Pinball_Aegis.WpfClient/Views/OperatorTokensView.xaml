@@ -189,9 +189,10 @@
                             </Border>
 
                             <!-- Reset Button -->
-                            <ui:Button Appearance="Subtle" 
+                            <ui:Button Appearance="Secondary" 
+                                       Icon="{ui:SymbolIcon ArrowReset24}"
                                        Command="{Binding ResetFormCommand}" 
-                                       HorizontalAlignment="Right" 
+                                       HorizontalAlignment="Stretch" 
                                        Content="Émettre une autre clé"/>
                         </StackPanel>
                     </ScrollViewer>
