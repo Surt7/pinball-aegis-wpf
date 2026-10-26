@@ -20,16 +20,37 @@ public class HttpFleetAdminService : IFleetAdminService
         _sessionService = sessionService;
     }
 
-    private sealed record MachineDto(
-        Guid MachineId,
-        string MachineName,
-        string DisplayName,
-        int MachineStatus,
-        string? MachineNotes,
-        DateTime RegistredAtUtc,
-        DateTime? LastUpdated,
-        string SerialNumber
-    );
+    private sealed class MachineDto
+    {
+        public Guid MachineId { get; set; }
+        public string MachineName { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public System.Text.Json.JsonElement MachineStatus { get; set; }
+        public string? MachineNotes { get; set; }
+        public DateTime RegistredAtUtc { get; set; }
+        public DateTime? LastUpdated { get; set; }
+        public string SerialNumber { get; set; } = "";
+
+        public int GetStatusInt()
+        {
+            if (MachineStatus.ValueKind == System.Text.Json.JsonValueKind.Number && MachineStatus.TryGetInt32(out var i))
+                return i;
+            if (MachineStatus.ValueKind == System.Text.Json.JsonValueKind.String)
+            {
+                var s = MachineStatus.GetString()?.ToLowerInvariant();
+                return s switch
+                {
+                    "active" => 1,
+                    "revoked" => 2,
+                    "inactive" => 3,
+                    "maintenance" => 4,
+                    "pendingenrollment" => 5,
+                    _ => 0
+                };
+            }
+            return 0;
+        }
+    }
 
     public async Task<IReadOnlyList<MachineItem>> GetAllMachinesAsync(CancellationToken ct = default)
     {
@@ -63,7 +84,7 @@ public class HttpFleetAdminService : IFleetAdminService
             MachineName = m.MachineName,
             DisplayName = m.DisplayName,
             SerialNumber = m.SerialNumber,
-            MachineStatus = m.MachineStatus,
+            MachineStatus = m.GetStatusInt(),
             MachineNotes = m.MachineNotes,
             RegisteredAtUtc = m.RegistredAtUtc,
             LastUpdated = m.LastUpdated

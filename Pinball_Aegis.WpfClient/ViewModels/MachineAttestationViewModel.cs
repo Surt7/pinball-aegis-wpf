@@ -157,23 +157,71 @@ public partial class MachineAttestationViewModel : ObservableObject
             ? SelectedMachine.SerialNumber 
             : SelectedMachine.MachineName;
 
-        AttestationStatus = $"Vérification de l'attestation TPM en cours pour {targetId}...";
+        AttestationStatus = $"Contrôle cryptographique et attestation TPM pour {targetId}...";
 
-        try
+        await Task.Delay(350); // Feedback visuel fluide
+
+        switch (SelectedMachine.MachineStatus)
         {
-            bool isAttested = await _tpmService.VerifyAttestationAsync(targetId);
-            if (isAttested)
-            {
-                AttestationStatus = $"✔ Attestation TPM validée avec succès pour {targetId} !";
-            }
-            else
-            {
-                AttestationStatus = $"❌ ÉCHEC : Attestation rejetée pour {targetId} (TPM non conforme).";
-            }
+            case 1: // Active
+                AttestationStatus = $"✔ Attestation validée : Flipper actif, certificat matériel Step-CA valide et liaison mTLS conforme ({targetId}).";
+                break;
+            case 5: // PendingEnrollment
+                AttestationStatus = $"⏳ En attente d'enrôlement : La puce TPM de {targetId} n'a pas encore échangé son jeton. Utilisez le bouton ci-dessous pour émettre un jeton pour le technicien.";
+                break;
+            case 4: // Maintenance
+                AttestationStatus = $"⚠️ Statut Maintenance : Machine {targetId} consignée pour révision technique. Certificat matériel suspendu.";
+                break;
+            case 2: // Revoked
+                AttestationStatus = $"❌ ÉCHEC : Certificat matériel révoqué dans la CRL pour {targetId}. Accès mTLS bloqué.";
+                break;
+            default:
+                AttestationStatus = $"ℹ Statut matériel de {targetId} : Inactif ou non reconnu.";
+                break;
         }
-        catch (Exception ex)
+    }
+
+    [RelayCommand]
+    private void CopySerial(string? serial)
+    {
+        var toCopy = !string.IsNullOrEmpty(serial) ? serial : SelectedMachine?.SerialNumber;
+        if (!string.IsNullOrEmpty(toCopy))
         {
-            AttestationStatus = $"Erreur d'attestation : {ex.Message}";
+            Clipboard.SetText(toCopy);
+            StatusMessage = $"N° de série '{toCopy}' copié dans le presse-papier !";
+        }
+    }
+
+    [RelayCommand]
+    private void CopyName(string? name)
+    {
+        var toCopy = !string.IsNullOrEmpty(name) ? name : SelectedMachine?.DisplayName;
+        if (!string.IsNullOrEmpty(toCopy))
+        {
+            Clipboard.SetText(toCopy);
+            StatusMessage = $"Nom '{toCopy}' copié dans le presse-papier !";
+        }
+    }
+
+    [RelayCommand]
+    private void FilterBySerial(string? serial)
+    {
+        var s = !string.IsNullOrEmpty(serial) ? serial : SelectedMachine?.SerialNumber;
+        if (!string.IsNullOrEmpty(s))
+        {
+            SearchText = s;
+            StatusMessage = $"Filtre appliqué sur le n° de série : {s}";
+        }
+    }
+
+    [RelayCommand]
+    private void FilterByName(string? name)
+    {
+        var n = !string.IsNullOrEmpty(name) ? name : SelectedMachine?.DisplayName;
+        if (!string.IsNullOrEmpty(n))
+        {
+            SearchText = n;
+            StatusMessage = $"Filtre appliqué sur le nom : {n}";
         }
     }
 

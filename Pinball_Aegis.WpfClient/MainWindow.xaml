@@ -73,7 +73,18 @@
                                        Content="{Binding OperatorDisplayName}" 
                                        Icon="{ui:SymbolIcon Person24}"
                                        ToolTip="Cliquer pour gérer la session opérateur"
-                                       Command="{Binding ToggleOperatorPanelCommand}" />
+                                       Command="{Binding ToggleOperatorPanelCommand}">
+                    <ui:NavigationViewItem.Style>
+                        <Style TargetType="ui:NavigationViewItem" BasedOn="{StaticResource {x:Type ui:NavigationViewItem}}">
+                            <Setter Property="Foreground" Value="#FF6B6B"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAuthenticated}" Value="True">
+                                    <Setter Property="Foreground" Value="#51CF66"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:NavigationViewItem.Style>
+                </ui:NavigationViewItem>
             </ui:NavigationView.FooterMenuItems>
 
         </ui:NavigationView>
