@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:views="clr-namespace:Pinball_Aegis.Views"
       xmlns:viewmodels="clr-namespace:Pinball_Aegis.ViewModels"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1100"
@@ -16,14 +17,14 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- EN-TÊTE : Titre et barre de filtres / recherche -->
+        <!-- HEADER: Title and filters / search bar -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Titre & Contexte -->
+            <!-- Title & Context -->
             <StackPanel Grid.Column="0">
                 <TextBlock Text="Supervision de Flotte &amp; Sécurité TPM" 
                            FontSize="22" 
@@ -34,7 +35,7 @@
                            FontSize="12"/>
             </StackPanel>
 
-            <!-- Barre d'outils : Recherche, Filtre statut, Actualiser -->
+            <!-- Toolbar: Search, Status filter, Refresh -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
                             PlaceholderText="Rechercher machine, série..." 
@@ -60,14 +61,14 @@
             </StackPanel>
         </Grid>
 
-        <!-- CORPS PRINCIPAL : Tableau d'inventaire (Gauche, élargi) + Détails Machine (Droite, compact) -->
+        <!-- MAIN BODY: Inventory table (Left) + Machine details inspector (Right) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3.5*"/>
                 <ColumnDefinition Width="1.7*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- COLONNE GAUCHE : Inventaire des Flippers (DataGrid moderne) -->
+            <!-- LEFT COLUMN: Flipper inventory (Modern DataGrid) -->
             <Border Grid.Column="0" 
                     Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
                     BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
@@ -94,7 +95,7 @@
                               BorderThickness="0"
                               RowHeight="42">
 
-                    <!-- Style En-têtes de colonnes (Texte gris clair lisible) -->
+                    <!-- Column headers style -->
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Background" Value="Transparent"/>
@@ -107,7 +108,7 @@
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
 
-                    <!-- Style de Ligne & Menu contextuel de copie / filtre -->
+                    <!-- Row style & Context menu -->
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="Background" Value="Transparent"/>
@@ -138,7 +139,7 @@
                     </DataGrid.RowStyle>
 
                     <DataGrid.Columns>
-                        <!-- Nom Machine / Flipper -->
+                        <!-- Machine / Flipper Name -->
                         <DataGridTemplateColumn Header="Flipper" Width="2.2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -153,7 +154,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <!-- Numéro de Série (Avec bouton copie directe) -->
+                        <!-- Serial Number (With copy button) -->
                         <DataGridTemplateColumn Header="N° de Série" Width="1.3*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -168,15 +169,15 @@
                                                    Appearance="Transparent" 
                                                    Padding="3" 
                                                    Margin="6,0,0,0" 
-                                                   ToolTip="Copier ce numéro de série"
-                                                   Command="{Binding DataContext.CopySerialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   ToolTip="Copier ce numéro de série" 
+                                                   Command="{Binding DataContext.CopySerialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                                    CommandParameter="{Binding SerialNumber}"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <!-- Statut -->
+                        <!-- Machine Status -->
                         <DataGridTemplateColumn Header="Statut" Width="1.0*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -185,8 +186,8 @@
                                             BorderThickness="1" 
                                             CornerRadius="4" 
                                             Padding="6,2" 
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Left" 
+                                            VerticalAlignment="Center" 
                                             Margin="4">
                                         <TextBlock Text="{Binding StatusText}" 
                                                    Foreground="{Binding StatusColor}" 
@@ -197,7 +198,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <!-- Statut Certificat TPM (Calculé d'un coup sans surcharge réseau) -->
+                        <!-- TPM Certificate Status -->
                         <DataGridTemplateColumn Header="Certificat TPM" Width="1.8*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -206,16 +207,16 @@
                                             BorderThickness="1" 
                                             CornerRadius="4" 
                                             Padding="6,2" 
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            Margin="4"
+                                            HorizontalAlignment="Left" 
+                                            VerticalAlignment="Center" 
+                                            Margin="4" 
                                             ToolTip="{Binding CertStatusText}">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <Ellipse Width="7" Height="7" Fill="{Binding CertExpirationColor}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding CertStatusText}" 
                                                        Foreground="{Binding CertExpirationColor}" 
                                                        FontWeight="SemiBold" 
-                                                       FontSize="10"
+                                                       FontSize="10" 
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </Border>
@@ -223,7 +224,7 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <!-- Date d'enregistrement (Gris clair lisible, largeur garantie) -->
+                        <!-- Registration Date -->
                         <DataGridTemplateColumn Header="Enregistré le" Width="1.1*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -238,7 +239,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <!-- Légende Statuts Certificats Matériels TPM -->
+                <!-- TPM Certificate Status Legend -->
                 <Border Grid.Row="1" 
                         Margin="0,8,0,0" 
                         Padding="8,6" 
@@ -265,246 +266,17 @@
             </Grid>
         </Border>
 
-            <!-- COLONNE DROITE : Fiche de Contrôle Cryptographique du Flipper sélectionné -->
-            <Border Grid.Column="1" 
-                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
-                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16">
-                <Grid>
-                    <!-- Quand AUCUNE machine n'est sélectionnée -->
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedMachine}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
-                        <ui:SymbolIcon Symbol="DesktopCheckmark24" FontSize="40" Margin="0,0,0,8" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock Text="Sélectionnez un flipper dans la liste" FontWeight="SemiBold" FontSize="14" Foreground="#F8FAFC" HorizontalAlignment="Center"/>
-                        <TextBlock Text="pour inspecter son certificat matériel et son attestation TPM." Foreground="#94A3B8" FontSize="11" HorizontalAlignment="Center"/>
-                    </StackPanel>
-
-                    <!-- Quand une machine EST sélectionnée -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ScrollViewer.Style>
-                            <Style TargetType="ScrollViewer">
-                                <Setter Property="Visibility" Value="Visible"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedMachine}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ScrollViewer.Style>
-
-                        <StackPanel>
-                            <!-- En-tête machine avec bouton copie rapide du nom -->
-                            <DockPanel LastChildFill="True" Margin="0,0,0,2">
-                                <ui:Button DockPanel.Dock="Right" 
-                                           Icon="{ui:SymbolIcon Copy16}" 
-                                           Appearance="Transparent" 
-                                           Padding="4" 
-                                           ToolTip="Copier le nom du flipper" 
-                                           Command="{Binding CopyNameCommand}" 
-                                           CommandParameter="{Binding SelectedMachine.DisplayName}"/>
-                                <TextBlock Text="{Binding SelectedMachine.DisplayName}" FontSize="18" FontWeight="SemiBold" Foreground="#F8FAFC" VerticalAlignment="Center"/>
-                            </DockPanel>
-                            <TextBlock Text="{Binding SelectedMachine.MachineName}" Foreground="#94A3B8" FontSize="12" Margin="0,0,0,8"/>
-
-                            <!-- Badge Statut Machine -->
-                            <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
-                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
-                                    BorderThickness="1" 
-                                    CornerRadius="4" 
-                                    Padding="8,4" 
-                                    HorizontalAlignment="Left" 
-                                    Margin="0,0,0,16">
-                                <TextBlock Text="{Binding SelectedMachine.StatusText}" 
-                                           Foreground="{Binding SelectedMachine.StatusColor}" 
-                                           FontWeight="SemiBold" 
-                                           FontSize="12"/>
-                            </Border>
-
-                            <!-- Données d'inventaire avec couleurs claires et boutons de copie -->
-                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,16">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-
-                                    <!-- N° Série avec copie directe -->
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="N° de Série :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding SelectedMachine.SerialNumber}" 
-                                                   FontFamily="Consolas, monospace" 
-                                                   FontWeight="SemiBold" 
-                                                   FontSize="12" 
-                                                   Foreground="#93C5FD" 
-                                                   VerticalAlignment="Center"/>
-                                        <ui:Button Icon="{ui:SymbolIcon Copy16}" 
-                                                   Appearance="Transparent" 
-                                                   Padding="3" 
-                                                   Margin="6,0,0,0" 
-                                                   ToolTip="Copier ce numéro de série" 
-                                                   Command="{Binding CopySerialCommand}" 
-                                                   CommandParameter="{Binding SelectedMachine.SerialNumber}"/>
-                                        <ui:Button Icon="{ui:SymbolIcon Filter20}" 
-                                                   Appearance="Transparent" 
-                                                   Padding="3" 
-                                                   Margin="2,0,0,0" 
-                                                   ToolTip="Filtrer la recherche avec ce numéro" 
-                                                   Command="{Binding FilterBySerialCommand}" 
-                                                   CommandParameter="{Binding SelectedMachine.SerialNumber}"/>
-                                    </StackPanel>
-
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Enregistré le :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMachine.RegisteredAtUtc, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
-
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Dernière MàJ :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMachine.LastUpdated, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="11" Margin="0,4"/>
-
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Notes :" Foreground="#94A3B8" FontSize="11" Margin="0,4"/>
-                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMachine.MachineNotes}" Foreground="#CBD5E1" FontSize="11" Margin="0,4" TextWrapping="Wrap"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- SECTION 1 : VÉRIFICATION ATTESTATION TPM EN DIRECT -->
-                            <TextBlock Text="Attestation Cryptographique TPM" FontWeight="SemiBold" FontSize="13" Foreground="#F8FAFC" Margin="0,0,0,6"/>
-                            <TextBlock Text="Contrôle l'identité mTLS de la machine et la validité de son certificat matériel." Foreground="#94A3B8" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
-
-                            <ui:Button Content="Vérifier l'Attestation TPM" 
-                                       Icon="{ui:SymbolIcon ShieldCheckmark24}" 
-                                       Appearance="Primary" 
-                                       HorizontalAlignment="Stretch"
-                                       Command="{Binding VerifySelectedMachineCommand}"
-                                       IsEnabled="{Binding CanVerifyTpm}"
-                                       Margin="0,0,0,8"/>
-
-                            <TextBlock Text="{Binding AttestationStatus}" 
-                                       FontSize="11" 
-                                       FontWeight="SemiBold"
-                                       Foreground="#E2E8F0"
-                                       TextWrapping="Wrap"
-                                       Margin="0,0,0,12"/>
-
-                            <!-- Carte Détails Certificat Matériel (Si présent) -->
-                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" 
-                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
-                                    BorderThickness="1" 
-                                    CornerRadius="6" 
-                                    Padding="10" 
-                                    Margin="0,0,0,16">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasSecurityDetails}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <TextBlock Text="Certificat Matériel TPM (Step-CA)" FontWeight="SemiBold" FontSize="11" Foreground="#93C5FD" Margin="0,0,0,6"/>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="N° Certificat :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SecurityDetails.CertSerialNumber}" FontFamily="Consolas, monospace" FontWeight="SemiBold" Foreground="#F8FAFC" FontSize="10" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Émetteur CA :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SecurityDetails.IssuerDn}" Foreground="#E2E8F0" FontSize="10" Margin="0,2" TextWrapping="Wrap"/>
-
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Puce Matériel :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SecurityDetails.DevicePhysicalSerial}" Foreground="#E2E8F0" FontSize="10" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Expiration :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SecurityDetails.NotAfterUtc, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="10" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Empreinte :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SecurityDetails.CertThumbprintSha256}" FontFamily="Consolas, monospace" Foreground="#94A3B8" FontSize="9" Margin="0,2" TextWrapping="Wrap"/>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- SECTION 2 : CYCLE DE VIE & RÉÉMISSION DE JETON -->
-                            <TextBlock Text="Cycle de Vie &amp; Enrôlement" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6"/>
-                            <TextBlock Text="Permet d'émettre un jeton pour le technicien terrain (client Qt)." Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
-
-                            <ui:Button Content="Réémettre Jeton d'Enrôlement" 
-                                       Icon="{ui:SymbolIcon Key24}" 
-                                       Appearance="Secondary" 
-                                       HorizontalAlignment="Stretch"
-                                       Command="{Binding ReissueTokenCommand}"
-                                       IsEnabled="{Binding IsOperatorAdmin}"
-                                       Margin="0,0,0,10"/>
-
-                            <!-- Boîte d'affichage du jeton régénéré -->
-                            <Border Background="#1A2E1A" BorderBrush="#51CF66" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsTokenReissued}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <TextBlock Text="Nouveau Jeton d'Enrôlement :" FontWeight="SemiBold" Foreground="#51CF66" FontSize="11" Margin="0,0,0,4"/>
-                                    <TextBox Text="{Binding ReissuedToken, Mode=OneWay}" 
-                                             IsReadOnly="True" 
-                                             FontFamily="Consolas, monospace" 
-                                             FontSize="11" 
-                                             Background="#0F172A" 
-                                             Foreground="#F8FAFC"
-                                             Padding="6" 
-                                             Margin="0,0,0,6"/>
-                                    <ui:Button Content="Copier le Jeton" 
-                                               Icon="{ui:SymbolIcon Copy24}" 
-                                               Appearance="Transparent" 
-                                               Command="{Binding CopyTokenToClipboardCommand}" 
-                                               HorizontalAlignment="Right"/>
-                                </StackPanel>
-                            </Border>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!-- PIED DE PAGE : Barre d'état -->
-        <Border Grid.Row="2" Margin="0,12,0,0" Padding="8,4" Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="4">
-            <DockPanel LastChildFill="True">
-                <TextBlock DockPanel.Dock="Right" Text="{Binding OperatorStatusText}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
-                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
-            </DockPanel>
-        </Border>
-
+        <!-- RIGHT COLUMN: Cryptographic inspection panel for selected machine (Extracted component) -->
+        <views:MachineInspectorControl Grid.Column="1"/>
     </Grid>
+
+    <!-- FOOTER: Status bar -->
+    <Border Grid.Row="2" Margin="0,12,0,0" Padding="8,4" Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="4">
+        <DockPanel LastChildFill="True">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding OperatorStatusText}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
+            <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
+        </DockPanel>
+    </Border>
+
+</Grid>
 </Page>

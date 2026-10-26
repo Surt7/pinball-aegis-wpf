@@ -93,8 +93,16 @@ public partial class MachineAttestationViewModel : ObservableObject
         ReissuedToken = "";
         SecurityDetails = null;
         OnPropertyChanged(nameof(HasSecurityDetails));
+        OnPropertyChanged(nameof(CanReissueToken));
+        OnPropertyChanged(nameof(ReissueButtonText));
     }
-
+    
+    
+    // Computed permission and state for issuing / reissuing flipper enrollment tokens
+    public bool CanReissueToken => IsOperatorAdmin && SelectedMachine != null && SelectedMachine.CanIssueToken;
+    public string ReissueButtonText => SelectedMachine?.ReissueButtonText ?? "Générer Jeton d'Enrôlement";
+    
+    
     [RelayCommand]
     public async Task LoadMachinesAsync()
     {

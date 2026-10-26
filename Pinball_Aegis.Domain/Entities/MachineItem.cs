@@ -19,7 +19,15 @@ public sealed class MachineItem
     public bool HasCertificate => CertExpiresAtUtc.HasValue;
     public bool IsCertExpired => CertExpiresAtUtc.HasValue && DateTime.UtcNow > CertExpiresAtUtc.Value;
     public bool IsCertExpiringSoon => CertExpiresAtUtc.HasValue && !IsCertExpired && CertExpiresAtUtc.Value <= DateTime.UtcNow.AddDays(30);
+    // Only machines in PendingEnrollment status (5) are eligible for enrollment tokens
+    public bool CanIssueToken => MachineStatus == 5;
 
+    // Adaptive button text based on whether a certificate was already provisioned
+    public string ReissueButtonText => !HasCertificate 
+        ? "Générer Jeton d'Enrôlement" 
+        : "Réémettre Jeton d'Enrôlement";
+    
+    
     public string CertExpirationColor => CertStatus switch
     {
         2 => "#EF4444", // Revoked (Red)
