@@ -6,6 +6,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:viewmodels="clr-namespace:Pinball_Aegis.ViewModels"
       mc:Ignorable="d" 
+      d:DataContext="{d:DesignInstance Type=viewmodels:ProvisionMachineViewModel}"
       d:DesignHeight="700" d:DesignWidth="1100"
       Title="Provisioning Nouveau Flipper">
 

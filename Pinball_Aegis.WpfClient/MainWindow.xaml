@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:Pinball_Aegis"
+        xmlns:views="clr-namespace:Pinball_Aegis.Views"
         mc:Ignorable="d"
         Title="Pinball Aegis - Opérations de Sécurité &amp; Flipper" 
         Height="780" Width="1260"
@@ -27,13 +28,13 @@
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem Content="Attestation TPM" 
                                        Icon="{ui:SymbolIcon ShieldCheckmark24}" 
-                                       TargetPageType="{x:Type local:Views.MachineAttestationView}" />
+                                       TargetPageType="{x:Type views:MachineAttestationView}" />
                 <ui:NavigationViewItem Content="Provisioning Flipper" 
                                        Icon="{ui:SymbolIcon AddSquare24}" 
-                                       TargetPageType="{x:Type local:Views.ProvisionMachineView}" />
+                                       TargetPageType="{x:Type views:ProvisionMachineView}" />
                 <ui:NavigationViewItem Content="Clés Opérateurs" 
                                        Icon="{ui:SymbolIcon KeyMultiple24}" 
-                                       TargetPageType="{x:Type local:Views.OperatorTokensView}" />
+                                       TargetPageType="{x:Type views:OperatorTokensView}" />
             </ui:NavigationView.MenuItems>
 
             <!-- Les 3 Piliers de Sécurité dans le Footer (Chacun son bouton distinct) -->
