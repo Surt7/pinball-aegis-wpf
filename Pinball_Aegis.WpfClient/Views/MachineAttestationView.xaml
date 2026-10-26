@@ -107,15 +107,12 @@
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
 
-                    <!-- Style de Ligne : Bordure droite colorée selon l'état du certificat & Menu contextuel -->
+                    <!-- Style de Ligne & Menu contextuel de copie / filtre -->
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Foreground" Value="#F8FAFC"/>
                             <Setter Property="Margin" Value="0,2"/>
-                            <Setter Property="BorderThickness" Value="0,0,4,0"/>
-                            <Setter Property="BorderBrush" Value="{Binding CertExpirationColor}"/>
-                            <Setter Property="ToolTip" Value="{Binding CertStatusText}"/>
                             <Setter Property="ContextMenu">
                                 <Setter.Value>
                                     <ContextMenu>
