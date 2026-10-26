@@ -12,4 +12,7 @@ public interface IFleetAdminService
 
     // Reissues an enrollment token for a flipper machine in PendingEnrollment status
     Task<ReissueTokenResult> ReissueEnrollmentTokenAsync(Guid machineId, CancellationToken ct = default);
+
+    // Queries the real X.509 hardware certificate and TPM status from the backend
+    Task<MachineSecurityDto?> GetMachineSecurityAsync(Guid machineId, CancellationToken ct = default);
 }

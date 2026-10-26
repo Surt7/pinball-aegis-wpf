@@ -339,7 +339,57 @@
                                        FontWeight="SemiBold"
                                        Foreground="#E2E8F0"
                                        TextWrapping="Wrap"
-                                       Margin="0,0,0,16"/>
+                                       Margin="0,0,0,12"/>
+
+                            <!-- Carte Détails Certificat Matériel (Si présent) -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" 
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="6" 
+                                    Padding="10" 
+                                    Margin="0,0,0,16">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasSecurityDetails}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="Certificat Matériel TPM (Step-CA)" FontWeight="SemiBold" FontSize="11" Foreground="#93C5FD" Margin="0,0,0,6"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="N° Certificat :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SecurityDetails.CertSerialNumber}" FontFamily="Consolas, monospace" FontWeight="SemiBold" Foreground="#F8FAFC" FontSize="10" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Émetteur CA :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SecurityDetails.IssuerDn}" Foreground="#E2E8F0" FontSize="10" Margin="0,2" TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Puce Matériel :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SecurityDetails.DevicePhysicalSerial}" Foreground="#E2E8F0" FontSize="10" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Expiration :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SecurityDetails.NotAfterUtc, StringFormat='dd/MM/yyyy HH:mm'}" Foreground="#E2E8F0" FontSize="10" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Empreinte :" Foreground="#94A3B8" FontSize="10" Margin="0,2"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SecurityDetails.CertThumbprintSha256}" FontFamily="Consolas, monospace" Foreground="#94A3B8" FontSize="9" Margin="0,2" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
 
                             <!-- SECTION 2 : CYCLE DE VIE & RÉÉMISSION DE JETON -->
                             <TextBlock Text="Cycle de Vie &amp; Enrôlement" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6"/>

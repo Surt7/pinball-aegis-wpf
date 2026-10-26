@@ -119,4 +119,24 @@ public class HttpFleetAdminService : IFleetAdminService
 
         return new ReissueTokenResult(true, token, expires, null);
     }
+
+    public async Task<MachineSecurityDto?> GetMachineSecurityAsync(Guid machineId, CancellationToken ct = default)
+    {
+        var url = $"{ApiRoutes.Fleet.Machines}/{machineId}/security";
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+        if (!string.IsNullOrEmpty(_sessionService.RawAccessToken))
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _sessionService.RawAccessToken);
+        }
+
+        var response = await _httpClient.SendAsync(request, ct);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<MachineSecurityDto>(cancellationToken: ct);
+    }
 }

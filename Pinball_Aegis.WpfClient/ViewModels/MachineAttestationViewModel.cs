@@ -46,6 +46,11 @@ public partial class MachineAttestationViewModel : ObservableObject
     [ObservableProperty]
     private bool _isTokenReissued;
 
+    [ObservableProperty]
+    private MachineSecurityDto? _securityDetails;
+
+    public bool HasSecurityDetails => SecurityDetails is not null && SecurityDetails.HasCertificate;
+
     // Permissions & Licensing
     public bool CanVerifyTpm => _sessionService.HasPermission(OperatorPermission.VerifyTpmAttestation) && 
                                 _licenseService.IsValid;
@@ -86,6 +91,8 @@ public partial class MachineAttestationViewModel : ObservableObject
         AttestationStatus = "";
         IsTokenReissued = false;
         ReissuedToken = "";
+        SecurityDetails = null;
+        OnPropertyChanged(nameof(HasSecurityDetails));
     }
 
     [RelayCommand]
@@ -157,27 +164,48 @@ public partial class MachineAttestationViewModel : ObservableObject
             ? SelectedMachine.SerialNumber 
             : SelectedMachine.MachineName;
 
-        AttestationStatus = $"Contrôle cryptographique et attestation TPM pour {targetId}...";
+        AttestationStatus = $"Interrogation de l'autorité Step-CA et du registre matériel pour {targetId}...";
 
-        await Task.Delay(350); // Feedback visuel fluide
-
-        switch (SelectedMachine.MachineStatus)
+        try
         {
-            case 1: // Active
-                AttestationStatus = $"✔ Attestation validée : Flipper actif, certificat matériel Step-CA valide et liaison mTLS conforme ({targetId}).";
-                break;
-            case 5: // PendingEnrollment
-                AttestationStatus = $"⏳ En attente d'enrôlement : La puce TPM de {targetId} n'a pas encore échangé son jeton. Utilisez le bouton ci-dessous pour émettre un jeton pour le technicien.";
-                break;
-            case 4: // Maintenance
-                AttestationStatus = $"⚠️ Statut Maintenance : Machine {targetId} consignée pour révision technique. Certificat matériel suspendu.";
-                break;
-            case 2: // Revoked
-                AttestationStatus = $"❌ ÉCHEC : Certificat matériel révoqué dans la CRL pour {targetId}. Accès mTLS bloqué.";
-                break;
-            default:
-                AttestationStatus = $"ℹ Statut matériel de {targetId} : Inactif ou non reconnu.";
-                break;
+            var sec = await _fleetService.GetMachineSecurityAsync(SelectedMachine.MachineId);
+            SecurityDetails = sec;
+            OnPropertyChanged(nameof(HasSecurityDetails));
+
+            if (sec is null)
+            {
+                AttestationStatus = $"❌ Erreur : Impossible de joindre le registre de sécurité pour {targetId}.";
+                return;
+            }
+
+            if (!sec.HasAttachedDevice)
+            {
+                AttestationStatus = $"❌ REJETÉ : Aucun périphérique physique (TPM) n'est rattaché à ce flipper.";
+            }
+            else if (!sec.HasCertificate)
+            {
+                AttestationStatus = $"⏳ EN ATTENTE : Puce TPM ({sec.DevicePhysicalSerial}) détectée mais aucun certificat émis. Enrôlement requis.";
+            }
+            else if (sec.CertStatus == 2)
+            {
+                AttestationStatus = $"❌ RÉVOQUÉ : Le certificat matériel {sec.CertSerialNumber} est révoqué dans la CRL.";
+            }
+            else if (sec.IsExpired)
+            {
+                AttestationStatus = $"⚠️ EXPIRÉ : Le certificat matériel {sec.CertSerialNumber} a expiré le {sec.NotAfterUtc:dd/MM/yyyy}.";
+            }
+            else if (sec.IsValid)
+            {
+                AttestationStatus = $"✔ CERTIFIÉ : Certificat {sec.CertSerialNumber} valide jusqu'au {sec.NotAfterUtc:dd/MM/yyyy} ({sec.IssuerDn}). mTLS actif.";
+            }
+            else
+            {
+                AttestationStatus = $"ℹ Statut matériel : {sec.StatusExplanation}";
+            }
+        }
+        catch (Exception ex)
+        {
+            AttestationStatus = $"Erreur d'attestation mTLS : {ex.Message}";
         }
     }
 
