@@ -1,4 +1,4 @@
-﻿using Pinball_Aegis.Domain.Enums;
+using Pinball_Aegis.Domain.Enums;
 
 namespace Pinball_Aegis.Domain.Entities;
 
@@ -7,23 +7,26 @@ public sealed class OperatorToken
 {
     public string OperatorId { get; }
     public string CommonName { get; }
-    public OperatorRole Role { get; }
+    public IReadOnlyList<string> Roles { get; }
+    public string PrimaryRole => Roles.Any(r => string.Equals(r, "Admin", StringComparison.OrdinalIgnoreCase)) 
+        ? "Admin" 
+        : (Roles.FirstOrDefault(r => !r.StartsWith("default-roles", StringComparison.OrdinalIgnoreCase)) ?? "User");
     public DateTimeOffset ExpiresAtUtc { get; }
     public string Issuer { get; }
 
     public OperatorToken(
         string operatorId, 
         string commonName, 
-        OperatorRole role, 
+        IEnumerable<string> roles, 
         DateTimeOffset expiresAtUtc,
-        string issuer = "WorldPinball Operational Intermediate CA")
+        string issuer = "WorldPinball")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operatorId);
         ArgumentException.ThrowIfNullOrWhiteSpace(commonName);
 
         OperatorId = operatorId;
         CommonName = commonName;
-        Role = role;
+        Roles = roles.ToList();
         ExpiresAtUtc = expiresAtUtc;
         Issuer = issuer;
     }
@@ -31,33 +34,20 @@ public sealed class OperatorToken
     // Checks whether the token has expired
     public bool IsExpired(DateTimeOffset utcNow) => utcNow >= ExpiresAtUtc;
 
-    // Checks if the operator role grants the requested permission
+    // Checks if the user has a specific Keycloak role
+    public bool HasRole(string role) => Roles.Any(r => string.Equals(r, role, StringComparison.OrdinalIgnoreCase));
+
+    // Checks if the operator roles grant the requested permission
     public bool HasPermission(OperatorPermission permission)
     {
-        return Role switch
+        // Admin has full unrestricted access
+        if (HasRole("Admin"))
+            return true;
+
+        return permission switch
         {
-            // SuperAdmin has unrestricted access
-            OperatorRole.SuperAdmin => true,
-
-            // Field Technician: diagnostics, maintenance, and firmware
-            OperatorRole.FieldTechnician => permission is 
-                OperatorPermission.ViewFleet or
-                OperatorPermission.ViewAuditLogs or
-                OperatorPermission.VerifyTpmAttestation or
-                OperatorPermission.RunHardwareDiagnostics or
-                OperatorPermission.ReflashFirmware,
-
-            // Arcade Operator: pricing, venue tournaments, fleet view
-            OperatorRole.ArcadeOperator => permission is 
-                OperatorPermission.ViewFleet or
-                OperatorPermission.ConfigurePricing or
-                OperatorPermission.ManageTournaments,
-
-            // Auditor: read-only access to fleet and security logs
-            OperatorRole.Auditor => permission is 
-                OperatorPermission.ViewFleet or
-                OperatorPermission.ViewAuditLogs,
-
+            OperatorPermission.VerifyTpmAttestation => HasRole("MachineProvision"),
+            OperatorPermission.ViewFleet => true,
             _ => false
         };
     }

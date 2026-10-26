@@ -1,8 +1,6 @@
-﻿
 using System.Windows.Controls;
 using Pinball_Aegis.Views;
 using Wpf.Ui.Controls;
-
 
 namespace Pinball_Aegis;
 
@@ -14,8 +12,9 @@ public partial class MainWindow : FluentWindow
     public MainWindow()
     {
         InitializeComponent();
-        
-        
+
+        DataContext = new MainViewModel(App.SessionService, App.CredentialStore);
+
         // Navigate to Security & TPM page on startup
         Loaded += (_, _) =>
         {

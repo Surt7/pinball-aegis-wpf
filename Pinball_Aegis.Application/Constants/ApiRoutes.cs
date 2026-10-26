@@ -1,4 +1,4 @@
-﻿namespace Pinball_Aegis.Application.Constants;
+namespace Pinball_Aegis.Application.Constants;
 
 // Centralized API routes and endpoints configuration
 public static class ApiRoutes
@@ -27,11 +27,13 @@ public static class ApiRoutes
         public const string Machines = "/api/v1/fleet/machines";
     }
     
-    // Keycloak Identity Provider endpoints
+    // Keycloak Identity Provider endpoints (served through reverse proxy with valid TLS)
     public static class Keycloak
     {
-        public const string Authority = "http://localhost:8081/realms/worldpinball";
-        public const string TokenEndpoint = "http://localhost:8081/realms/worldpinball/protocol/openid-connect/token";
-        public const string ClientId = "admin-cli";
+        public const string Authority = "https://auth.worldpinball.local/realms/worldpinball";
+        public const string AuthorizationEndpoint = "https://auth.worldpinball.local/realms/worldpinball/protocol/openid-connect/auth";
+        public const string TokenEndpoint = "https://auth.worldpinball.local/realms/worldpinball/protocol/openid-connect/token";
+        public const string ClientId = "pinball-aegis";
+        public const string RedirectUri = "http://127.0.0.1:8282/callback";
     }
 }
