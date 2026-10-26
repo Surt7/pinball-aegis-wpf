@@ -60,11 +60,11 @@
             </StackPanel>
         </Grid>
 
-        <!-- CORPS PRINCIPAL : Tableau d'inventaire (Gauche) + Détails Machine (Droite) -->
+        <!-- CORPS PRINCIPAL : Tableau d'inventaire (Gauche, élargi) + Détails Machine (Droite, compact) -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3.5*"/>
+                <ColumnDefinition Width="1.7*"/>
             </Grid.ColumnDefinitions>
 
             <!-- COLONNE GAUCHE : Inventaire des Flippers (DataGrid moderne) -->
@@ -142,7 +142,7 @@
 
                     <DataGrid.Columns>
                         <!-- Nom Machine / Flipper -->
-                        <DataGridTemplateColumn Header="Flipper" Width="2*">
+                        <DataGridTemplateColumn Header="Flipper" Width="2.2*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" Margin="4" VerticalAlignment="Center">
@@ -157,7 +157,7 @@
                         </DataGridTemplateColumn>
 
                         <!-- Numéro de Série (Avec bouton copie directe) -->
-                        <DataGridTemplateColumn Header="N° de Série" Width="1.6*">
+                        <DataGridTemplateColumn Header="N° de Série" Width="1.3*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4">
@@ -180,7 +180,7 @@
                         </DataGridTemplateColumn>
 
                         <!-- Statut -->
-                        <DataGridTemplateColumn Header="Statut" Width="1.5*">
+                        <DataGridTemplateColumn Header="Statut" Width="1.0*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
@@ -201,7 +201,7 @@
                         </DataGridTemplateColumn>
 
                         <!-- Statut Certificat TPM (Calculé d'un coup sans surcharge réseau) -->
-                        <DataGridTemplateColumn Header="Certificat TPM" Width="1.7*">
+                        <DataGridTemplateColumn Header="Certificat TPM" Width="1.8*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
@@ -226,8 +226,8 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
-                        <!-- Date d'enregistrement (Gris clair lisible) -->
-                        <DataGridTemplateColumn Header="Enregistré le" Width="*">
+                        <!-- Date d'enregistrement (Gris clair lisible, largeur garantie) -->
+                        <DataGridTemplateColumn Header="Enregistré le" Width="1.1*">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding RegisteredAtUtc, StringFormat='dd/MM/yyyy'}" 
