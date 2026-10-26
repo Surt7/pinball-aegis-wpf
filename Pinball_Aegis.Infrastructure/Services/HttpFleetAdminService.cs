@@ -30,6 +30,8 @@ public class HttpFleetAdminService : IFleetAdminService
         public DateTime RegistredAtUtc { get; set; }
         public DateTime? LastUpdated { get; set; }
         public string SerialNumber { get; set; } = "";
+        public DateTime? CertExpiresAtUtc { get; set; }
+        public int? CertStatus { get; set; }
 
         public int GetStatusInt()
         {
@@ -87,7 +89,9 @@ public class HttpFleetAdminService : IFleetAdminService
             MachineStatus = m.GetStatusInt(),
             MachineNotes = m.MachineNotes,
             RegisteredAtUtc = m.RegistredAtUtc,
-            LastUpdated = m.LastUpdated
+            LastUpdated = m.LastUpdated,
+            CertExpiresAtUtc = m.CertExpiresAtUtc,
+            CertStatus = m.CertStatus
         }).ToList();
     }
 
