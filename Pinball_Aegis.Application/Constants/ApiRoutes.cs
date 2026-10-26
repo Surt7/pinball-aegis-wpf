@@ -24,7 +24,7 @@ public static class ApiRoutes
     public static class Fleet
     {
         public const string Overview = "/api/v1/fleet/overview";
-        public const string Machines = "/api/v1/fleet/machines";
+        public const string Machines = "/api/v1/admin/machines";
     }
     
     // Keycloak Identity Provider endpoints (served through reverse proxy with valid TLS)

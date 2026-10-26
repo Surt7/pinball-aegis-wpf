@@ -7,8 +7,10 @@
         xmlns:local="clr-namespace:Pinball_Aegis"
         mc:Ignorable="d"
         Title="Pinball Aegis - Opérations de Sécurité &amp; Flipper" 
-        Height="760" Width="1240"
-        WindowStartupLocation="CenterScreen">
+        Height="780" Width="1260"
+        WindowStartupLocation="CenterScreen"
+        WindowBackdropType="Mica"
+        ExtendsContentIntoTitleBar="True">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -17,7 +19,7 @@
         </Grid.RowDefinitions>
 
         <!-- TitleBar customisée WPF-UI -->
-        <ui:TitleBar Grid.Row="0" Title="Pinball Aegis" ShowMaximize="True" ShowMinimize="True"/>
+        <ui:TitleBar Grid.Row="0" Title="Pinball Aegis - Console d'Opérations Sécurisées" ShowMaximize="True" ShowMinimize="True"/>
 
         <!-- Layout Principal : Navigation latérale + Contenu -->
         <ui:NavigationView Grid.Row="1" x:Name="RootNavigation" PaneDisplayMode="Left" IsBackButtonVisible="Collapsed">
@@ -28,21 +30,61 @@
                                        TargetPageType="{x:Type local:Views.MachineAttestationView}" />
             </ui:NavigationView.MenuItems>
 
-            <!-- Profil Opérateur dans le Footer de la Sidebar -->
+            <!-- Les 3 Piliers de Sécurité dans le Footer (Chacun son bouton distinct) -->
             <ui:NavigationView.FooterMenuItems>
-                <ui:NavigationViewItem Content="{Binding OperatorDisplayName}" 
+                <!-- 1. Bouton Matériel (Poste mTLS) -->
+                <ui:NavigationViewItem x:Name="WorkstationNavItem"
+                                       Content="{Binding WorkstationDisplayName}" 
+                                       Icon="{ui:SymbolIcon Desktop24}"
+                                       ToolTip="Cliquer pour afficher la carte matérielle du poste"
+                                       Command="{Binding ToggleWorkstationPanelCommand}">
+                    <ui:NavigationViewItem.Style>
+                        <Style TargetType="ui:NavigationViewItem" BasedOn="{StaticResource {x:Type ui:NavigationViewItem}}">
+                            <Setter Property="Foreground" Value="#FF6B6B"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWorkstationEnrolled}" Value="True">
+                                    <Setter Property="Foreground" Value="#51CF66"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:NavigationViewItem.Style>
+                </ui:NavigationViewItem>
+
+                <!-- 2. Bouton Logiciel (Licence Signée) -->
+                <ui:NavigationViewItem x:Name="LicenseNavItem"
+                                       Content="{Binding LicenseDisplayName}" 
+                                       Icon="{ui:SymbolIcon Certificate24}"
+                                       ToolTip="Cliquer pour afficher la carte de licence logicielle"
+                                       Command="{Binding ToggleLicensePanelCommand}">
+                    <ui:NavigationViewItem.Style>
+                        <Style TargetType="ui:NavigationViewItem" BasedOn="{StaticResource {x:Type ui:NavigationViewItem}}">
+                            <Setter Property="Foreground" Value="#FF6B6B"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSoftwareLicensed}" Value="True">
+                                    <Setter Property="Foreground" Value="#51CF66"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ui:NavigationViewItem.Style>
+                </ui:NavigationViewItem>
+
+                <!-- 3. Bouton Opérateur (Session Keycloak) -->
+                <ui:NavigationViewItem x:Name="OperatorNavItem"
+                                       Content="{Binding OperatorDisplayName}" 
                                        Icon="{ui:SymbolIcon Person24}"
-                                       Command="{Binding ToggleLoginDrawerCommand}" />
+                                       ToolTip="Cliquer pour gérer la session opérateur"
+                                       Command="{Binding ToggleOperatorPanelCommand}" />
             </ui:NavigationView.FooterMenuItems>
 
         </ui:NavigationView>
 
-        <!-- Tiroir / Drawer d'authentification opérateur au-dessus du footer -->
-        <Border Grid.Row="1" 
+        <!-- Panneau Flottant Dédié (S'affiche uniquement au-dessus du footer) -->
+        <Border x:Name="SecurityCardBorder"
+                Grid.Row="1" 
                 HorizontalAlignment="Left" 
                 VerticalAlignment="Bottom"
-                Margin="12,0,0,60" 
-                Width="320"
+                Margin="12,0,0,130" 
+                Width="390"
                 Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
                 BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
@@ -53,69 +95,306 @@
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsLoginDrawerOpen}" Value="True">
+                        <DataTrigger Binding="{Binding IsAnyPanelOpen}" Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
 
-            <StackPanel>
-                <!-- Formulaire quand NON connecté -->
-                <StackPanel>
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsAuthenticated}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-
-                    <TextBlock Text="Authentification Opérateur" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
-                    <TextBlock Text="Protocole Zero-Trust OIDC avec PKCE (S256). Saisie sécurisée sur Keycloak." 
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
-                               FontSize="11" 
-                               TextWrapping="Wrap" 
-                               Margin="0,0,0,12"/>
-
-                    <ui:Button Content="S'identifier avec Keycloak" 
-                               Command="{Binding LoginCommand}" 
-                               Appearance="Primary" 
-                               Icon="{ui:SymbolIcon ShieldCheckmark24}"
-                               HorizontalAlignment="Stretch"
-                               Margin="0,0,0,8"/>
-
-                    <TextBlock Text="{Binding LoginStatus}" 
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
-                               FontSize="11" 
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-
-                <!-- Statut & Déconnexion quand CONNECTÉ -->
+            <Grid>
+                <!-- ========================================== -->
+                <!-- CARTE 1 : MATÉRIEL / POSTE SEULEMENT       -->
+                <!-- ========================================== -->
                 <StackPanel>
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsAuthenticated}" Value="True">
+                                <DataTrigger Binding="{Binding IsWorkstationPanelOpen}" Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
 
-                    <TextBlock Text="Session Active" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
-                    <TextBlock Text="{Binding OperatorDisplayName}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,12" TextWrapping="Wrap"/>
+                    <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="Desktop24" Margin="0,0,8,0" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Identité Matérielle du Poste" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ui:Button DockPanel.Dock="Right" 
+                                   Icon="{ui:SymbolIcon Dismiss16}" 
+                                   Appearance="Transparent" 
+                                   Padding="4"
+                                   Command="{Binding ClosePanelCommand}"/>
+                    </DockPanel>
 
-                    <ui:Button Content="Se déconnecter" 
-                               Command="{Binding LogoutCommand}" 
-                               Appearance="Secondary" 
-                               HorizontalAlignment="Stretch"/>
+                    <TextBlock Text="{Binding WorkstationStatusBadge}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,10">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#FF6B6B"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWorkstationEnrolled}" Value="True">
+                                        <Setter Property="Foreground" Value="#51CF66"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Détails techniques du certificat machine -->
+                    <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="10" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Machine :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding WorkstationCommonName}" FontWeight="SemiBold" FontSize="11" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Stockage :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding WorkstationStorageLocation}" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Émetteur :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding WorkstationIssuer}" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Expiration :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding WorkstationExpiresAt}" FontSize="11" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Empreinte :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding WorkstationThumbprint}" FontFamily="Consolas, monospace" FontSize="10" Margin="0,2" TextWrapping="Wrap"/>
+                        </Grid>
+                    </Border>
                 </StackPanel>
-            </StackPanel>
+
+                <!-- ========================================== -->
+                <!-- CARTE 2 : LOGICIEL / LICENCE SEULEMENT     -->
+                <!-- ========================================== -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLicensePanelOpen}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="Certificate24" Margin="0,0,8,0" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Licence Logicielle Cryptographique" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ui:Button DockPanel.Dock="Right" 
+                                   Icon="{ui:SymbolIcon Dismiss16}" 
+                                   Appearance="Transparent" 
+                                   Padding="4"
+                                   Command="{Binding ClosePanelCommand}"/>
+                    </DockPanel>
+
+                    <TextBlock Text="{Binding LicenseStatusBadge}" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,10">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#FF6B6B"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSoftwareLicensed}" Value="True">
+                                        <Setter Property="Foreground" Value="#51CF66"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Détails de la licence -->
+                    <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Produit :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseProduct}" FontWeight="SemiBold" FontSize="11" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Édition :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LicenseEdition}" FontSize="11" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Titulaire :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding LicenseLicensedTo}" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Liaison Matériel :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LicenseHardwareBinding}" FontWeight="SemiBold" Foreground="#51CF66" FontSize="11" Margin="0,2"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Expiration :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LicenseExpiresAt}" FontSize="11" Margin="0,2"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Modules activés -->
+                    <TextBlock Text="Fonctionnalités &amp; Modules activés :" FontWeight="SemiBold" FontSize="11" Margin="0,0,0,4"/>
+                    <ItemsControl ItemsSource="{Binding LicenseFeatures}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
+                                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                        BorderThickness="1" 
+                                        CornerRadius="4" 
+                                        Padding="6,2" 
+                                        Margin="0,0,6,4">
+                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- ========================================== -->
+                <!-- CARTE 3 : OPÉRATEUR / KEYCLOAK SEULEMENT   -->
+                <!-- ========================================== -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOperatorPanelOpen}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <DockPanel LastChildFill="False" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <ui:SymbolIcon Symbol="Person24" Margin="0,0,8,0" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Session Opérateur Keycloak" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ui:Button DockPanel.Dock="Right" 
+                                   Icon="{ui:SymbolIcon Dismiss16}" 
+                                   Appearance="Transparent" 
+                                   Padding="4"
+                                   Command="{Binding ClosePanelCommand}"/>
+                    </DockPanel>
+
+                    <!-- Vue Opérateur CONNECTÉ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAuthenticated}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Opérateur :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding OperatorName}" FontWeight="SemiBold" FontSize="11" Margin="0,2"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Rôle :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OperatorRole}" FontWeight="SemiBold" Foreground="#51CF66" FontSize="11" Margin="0,2"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Émetteur :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OperatorIssuer}" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Expiration :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding OperatorExpiresAt}" FontSize="11" Margin="0,2"/>
+                            </Grid>
+                        </Border>
+
+                        <ui:Button Content="Se déconnecter" 
+                                   Command="{Binding LogoutCommand}" 
+                                   Appearance="Secondary" 
+                                   HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+
+                    <!-- Vue Opérateur DÉCONNECTÉ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAuthenticated}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock Text="Authentification sécurisée avec PKCE (S256)." 
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                                   FontSize="11" 
+                                   TextWrapping="Wrap" 
+                                   Margin="0,0,0,10"/>
+
+                        <!-- Alerte si les prérequis de sécurité ne sont pas remplis -->
+                        <Border Background="#2A1B1B" BorderBrush="#FF6B6B" BorderThickness="1" CornerRadius="4" Padding="8" Margin="0,0,0,10">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CanLoginWithKeycloak}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="⛔ Accès bloqué : le poste doit être enrôlé et la licence logicielle valide pour autoriser la connexion opérateur."
+                                       Foreground="#FF8787" FontSize="11" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <ui:Button Content="S'identifier avec Keycloak" 
+                                   Command="{Binding LoginCommand}" 
+                                   IsEnabled="{Binding CanLoginWithKeycloak}"
+                                   Appearance="Primary" 
+                                   Icon="{ui:SymbolIcon ShieldCheckmark24}"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,0,8"/>
+
+                        <TextBlock Text="{Binding LoginStatus}" 
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                                   FontSize="11" 
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
         </Border>
 
     </Grid>

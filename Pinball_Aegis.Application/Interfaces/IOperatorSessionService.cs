@@ -18,6 +18,9 @@ public interface IOperatorSessionService
     // Active refresh token (used to restore session without asking for password)
     string? RefreshToken { get; }
 
+    // Active JWT access token (Bearer token sent to protected API endpoints)
+    string? RawAccessToken { get; }
+
     // Authenticates operator using raw token payload / certificate thumbprint
     Task<bool> AuthenticateAsync(string tokenData, CancellationToken cancellationToken = default);
 

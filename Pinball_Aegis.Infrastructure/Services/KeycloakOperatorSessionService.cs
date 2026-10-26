@@ -19,6 +19,7 @@ public class KeycloakOperatorSessionService : IOperatorSessionService
 
     public OperatorToken? CurrentToken { get; private set; }
     public string? RefreshToken { get; private set; }
+    public string? RawAccessToken => CurrentToken?.RawAccessToken;
     public bool IsAuthenticated => CurrentToken is not null && !CurrentToken.IsExpired(DateTimeOffset.UtcNow);
 
     public event Action? SessionChanged;
@@ -272,7 +273,10 @@ public class KeycloakOperatorSessionService : IOperatorSessionService
                     try
                     {
                         var idDebugPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "keycloak_id_token_debug.json");
-                        File.WriteAllText(idDebugPath, idNode.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                        if (idNode is not null)
+                        {
+                            File.WriteAllText(idDebugPath, idNode.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                        }
                     }
                     catch { }
                 }
@@ -343,7 +347,8 @@ public class KeycloakOperatorSessionService : IOperatorSessionService
                 commonName: displayName,
                 roles: rolesList,
                 expiresAtUtc: expiresAt,
-                issuer: ApiRoutes.Keycloak.Authority
+                issuer: ApiRoutes.Keycloak.Authority,
+                rawAccessToken: accessToken
             );
 
             SessionChanged?.Invoke();

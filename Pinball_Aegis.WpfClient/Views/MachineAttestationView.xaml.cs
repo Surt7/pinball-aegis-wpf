@@ -9,6 +9,11 @@ public partial class MachineAttestationView : Page
     {
         InitializeComponent();
 
-        DataContext = new MachineAttestationViewModel(App.TpmService, App.SessionService);
+        DataContext = new MachineAttestationViewModel(
+            App.TpmService, 
+            App.SessionService, 
+            App.FleetService, 
+            App.LicenseService
+        );
     }
 }

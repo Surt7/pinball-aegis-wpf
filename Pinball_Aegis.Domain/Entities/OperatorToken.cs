@@ -13,13 +13,15 @@ public sealed class OperatorToken
         : (Roles.FirstOrDefault(r => !r.StartsWith("default-roles", StringComparison.OrdinalIgnoreCase)) ?? "User");
     public DateTimeOffset ExpiresAtUtc { get; }
     public string Issuer { get; }
+    public string? RawAccessToken { get; }
 
     public OperatorToken(
         string operatorId, 
         string commonName, 
         IEnumerable<string> roles, 
         DateTimeOffset expiresAtUtc,
-        string issuer = "WorldPinball")
+        string issuer = "WorldPinball",
+        string? rawAccessToken = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(operatorId);
         ArgumentException.ThrowIfNullOrWhiteSpace(commonName);
@@ -29,6 +31,7 @@ public sealed class OperatorToken
         Roles = roles.ToList();
         ExpiresAtUtc = expiresAtUtc;
         Issuer = issuer;
+        RawAccessToken = rawAccessToken;
     }
 
     // Checks whether the token has expired

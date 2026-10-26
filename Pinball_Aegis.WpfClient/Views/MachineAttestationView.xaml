@@ -1,62 +1,300 @@
 <Page x:Class="Pinball_Aegis.Views.MachineAttestationView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      mc:Ignorable="d"
-      d:DesignHeight="450" d:DesignWidth="600">
+      xmlns:viewmodels="clr-namespace:Pinball_Aegis.ViewModels"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1100"
+      Title="Supervision Flotte &amp; Sécurité TPM">
 
-    <Grid Margin="25">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="480">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Card: Machine TPM Verification -->
-            <ui:Card Margin="0,0,0,15" Padding="25">
-                <StackPanel>
-                    
-                    <TextBlock Text="Attestation Matérielle &amp; Sécurité TPM" 
-                               FontSize="18" FontWeight="SemiBold" Margin="0,0,0,15"/>
+        <!-- EN-TÊTE : Titre et barre de filtres / recherche -->
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Identifiant de la Machine ciblée (Flipper) :" 
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
-                               Margin="0,0,0,8"/>
+            <!-- Titre & Contexte -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Supervision de Flotte &amp; Sécurité TPM" 
+                           FontSize="22" 
+                           FontWeight="SemiBold" 
+                           Margin="0,0,0,4"/>
+                <TextBlock Text="Inventaire centralisé des flippers, état des certificats et vérification matérielle TPM." 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                           FontSize="12"/>
+            </StackPanel>
 
-                    <!-- Two-Way Binding on Target Machine ID -->
-                    <ui:TextBox Text="{Binding TargetMachineId, UpdateSourceTrigger=PropertyChanged}" 
-                                PlaceholderText="Ex: NUC-FLIPPER-042"
-                                Icon="{ui:SymbolIcon Desktop24}"
-                                Margin="0,0,0,15"/>
+            <!-- Barre d'outils : Recherche, Filtre statut, Actualiser -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                            PlaceholderText="Rechercher machine, série..." 
+                            Icon="{ui:SymbolIcon Search24}"
+                            Width="220" 
+                            Margin="0,0,8,0"/>
 
-                    <!-- Operator Authorization Status Banner -->
-                    <Border Margin="0,0,0,15" Padding="12,10" Background="{DynamicResource SubtleFillColorSecondaryBrush}" CornerRadius="6">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <ui:SymbolIcon Symbol="ShieldKeyhole24" Margin="0,0,10,0"/>
-                            <TextBlock Text="{Binding OperatorStatusText}" 
-                                       FontSize="12" 
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                <ComboBox SelectedValue="{Binding SelectedStatusFilter}" 
+                          SelectedValuePath="Content"
+                          Width="160" 
+                          Margin="0,0,8,0">
+                    <ComboBoxItem Content="Tous" IsSelected="True"/>
+                    <ComboBoxItem Content="Active"/>
+                    <ComboBoxItem Content="En attente d'enrôlement"/>
+                    <ComboBoxItem Content="Maintenance"/>
+                    <ComboBoxItem Content="Inactive"/>
+                    <ComboBoxItem Content="Révoquée"/>
+                </ComboBox>
+
+                <ui:Button Content="Actualiser" 
+                           Icon="{ui:SymbolIcon ArrowSync24}" 
+                           Command="{Binding LoadMachinesCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- CORPS PRINCIPAL : Tableau d'inventaire (Gauche) + Détails Machine (Droite) -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- COLONNE GAUCHE : Inventaire des Flippers (DataGrid moderne) -->
+            <Border Grid.Column="0" 
+                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="8"
+                    Margin="0,0,16,0">
+                <DataGrid ItemsSource="{Binding FilteredMachines}" 
+                          SelectedItem="{Binding SelectedMachine}" 
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False" 
+                          IsReadOnly="True" 
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          Background="Transparent"
+                          BorderThickness="0">
+                    <DataGrid.Columns>
+                        <!-- Nom Machine / Flipper -->
+                        <DataGridTemplateColumn Header="Flipper" Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="4">
+                                        <ui:SymbolIcon Symbol="Tv24" Margin="0,0,8,0" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12"/>
+                                            <TextBlock Text="{Binding MachineName}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="10"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Numéro de Série -->
+                        <DataGridTextColumn Header="N° de Série" 
+                                            Binding="{Binding SerialNumber}" 
+                                            FontFamily="Consolas, monospace" 
+                                            FontSize="11" 
+                                            Width="1.5*"/>
+
+                        <!-- Statut -->
+                        <DataGridTemplateColumn Header="Statut" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
+                                            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                            BorderThickness="1" 
+                                            CornerRadius="4" 
+                                            Padding="6,2" 
+                                            HorizontalAlignment="Left"
+                                            Margin="4">
+                                        <TextBlock Text="{Binding StatusText}" 
+                                                   Foreground="{Binding StatusColor}" 
+                                                   FontWeight="SemiBold" 
+                                                   FontSize="11"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Date d'enregistrement -->
+                        <DataGridTextColumn Header="Enregistré le" 
+                                            Binding="{Binding RegisteredAtUtc, StringFormat='dd/MM/yyyy'}" 
+                                            FontSize="11" 
+                                            Width="*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <!-- COLONNE DROITE : Fiche de Contrôle Cryptographique du Flipper sélectionné -->
+            <Border Grid.Column="1" 
+                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}" 
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16">
+                <Grid>
+                    <!-- Quand AUCUNE machine n'est sélectionnée -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedMachine}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <ui:SymbolIcon Symbol="DesktopCheckmark24" FontSize="40" Margin="0,0,0,8" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="Sélectionnez un flipper dans la liste" FontWeight="SemiBold" FontSize="14" HorizontalAlignment="Center"/>
+                        <TextBlock Text="pour inspecter son certificat matériel et son attestation TPM." Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Quand une machine EST sélectionnée -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer.Style>
+                            <Style TargetType="ScrollViewer">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedMachine}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ScrollViewer.Style>
+
+                        <StackPanel>
+                            <!-- En-tête machine -->
+                            <TextBlock Text="{Binding SelectedMachine.DisplayName}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                            <TextBlock Text="{Binding SelectedMachine.MachineName}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,8"/>
+
+                            <!-- Badge Statut Machine -->
+                            <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}" 
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="4" 
+                                    Padding="8,4" 
+                                    HorizontalAlignment="Left" 
+                                    Margin="0,0,0,16">
+                                <TextBlock Text="{Binding SelectedMachine.StatusText}" 
+                                           Foreground="{Binding SelectedMachine.StatusColor}" 
+                                           FontWeight="SemiBold" 
+                                           FontSize="12"/>
+                            </Border>
+
+                            <!-- Données d'inventaire -->
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="6" Padding="12" Margin="0,0,0,16">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="N° de Série :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedMachine.SerialNumber}" FontFamily="Consolas, monospace" FontWeight="SemiBold" FontSize="11" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Enregistré le :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedMachine.RegisteredAtUtc, StringFormat='dd/MM/yyyy HH:mm'}" FontSize="11" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Dernière MàJ :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedMachine.LastUpdated, StringFormat='dd/MM/yyyy HH:mm'}" FontSize="11" Margin="0,2"/>
+
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Notes :" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" Margin="0,2"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedMachine.MachineNotes}" FontSize="11" Margin="0,2" TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- SECTION 1 : VÉRIFICATION ATTESTATION TPM EN DIRECT -->
+                            <TextBlock Text="Attestation Cryptographique TPM" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6"/>
+                            <TextBlock Text="Exécute un défi-réponse cryptographique en mTLS vers la machine." Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                            <ui:Button Content="Vérifier l'Attestation TPM" 
+                                       Icon="{ui:SymbolIcon ShieldCheckmark24}" 
+                                       Appearance="Primary" 
+                                       HorizontalAlignment="Stretch"
+                                       Command="{Binding VerifySelectedMachineCommand}"
+                                       IsEnabled="{Binding CanVerifyTpm}"
+                                       Margin="0,0,0,8"/>
+
+                            <TextBlock Text="{Binding AttestationStatus}" 
+                                       FontSize="11" 
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,16"/>
+
+                            <!-- SECTION 2 : CYCLE DE VIE & RÉÉMISSION DE JETON -->
+                            <TextBlock Text="Cycle de Vie &amp; Enrôlement" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,6"/>
+                            <TextBlock Text="Permet d'émettre un jeton pour le technicien terrain (client Qt)." Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                            <ui:Button Content="Réémettre Jeton d'Enrôlement" 
+                                       Icon="{ui:SymbolIcon Key24}" 
+                                       Appearance="Secondary" 
+                                       HorizontalAlignment="Stretch"
+                                       Command="{Binding ReissueTokenCommand}"
+                                       IsEnabled="{Binding IsOperatorAdmin}"
+                                       Margin="0,0,0,10"/>
+
+                            <!-- Boîte d'affichage du jeton régénéré -->
+                            <Border Background="#1A2E1A" BorderBrush="#51CF66" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTokenReissued}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <TextBlock Text="Nouveau Jeton d'Enrôlement :" FontWeight="SemiBold" Foreground="#51CF66" FontSize="11" Margin="0,0,0,4"/>
+                                    <TextBox Text="{Binding ReissuedToken, Mode=OneWay}" 
+                                             IsReadOnly="True" 
+                                             FontFamily="Consolas, monospace" 
+                                             FontSize="11" 
+                                             Background="#0F172A" 
+                                             Foreground="#F8FAFC"
+                                             Padding="6" 
+                                             Margin="0,0,0,6"/>
+                                    <ui:Button Content="Copier le Jeton" 
+                                               Icon="{ui:SymbolIcon Copy24}" 
+                                               Appearance="Transparent" 
+                                               Command="{Binding CopyTokenToClipboardCommand}" 
+                                               HorizontalAlignment="Right"/>
+                                </StackPanel>
+                            </Border>
+
                         </StackPanel>
-                    </Border>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
 
-                    <!-- Primary Action Button: Protected by RBAC permission -->
-                    <ui:Button Content="Vérifier l'Attestation TPM" 
-                               Command="{Binding VerifyMachineIdentityCommand}" 
-                               IsEnabled="{Binding CanVerifyTpm}"
-                               Appearance="Primary"
-                               Icon="{ui:SymbolIcon ShieldCheckmark24}"
-                               HorizontalAlignment="Stretch"
-                               Height="38"/>
-                </StackPanel>
-            </ui:Card>
+        <!-- PIED DE PAGE : Barre d'état -->
+        <Border Grid.Row="2" Margin="0,12,0,0" Padding="8,4" Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="4">
+            <DockPanel LastChildFill="True">
+                <TextBlock DockPanel.Dock="Right" Text="{Binding OperatorStatusText}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"/>
+            </DockPanel>
+        </Border>
 
-            <!-- Result status text block -->
-            <TextBlock Text="{Binding ConnectionStatus}" 
-                       FontSize="14" 
-                       FontWeight="Medium" 
-                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" 
-                       HorizontalAlignment="Center"
-                       TextWrapping="Wrap"/>
-
-        </StackPanel>
     </Grid>
 </Page>
