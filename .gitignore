@@ -8,4 +8,5 @@ riderModule.iml
 *.crt
 *.key
 *.pfx
+*.DotSettings.user
 Pinball_Aegis/

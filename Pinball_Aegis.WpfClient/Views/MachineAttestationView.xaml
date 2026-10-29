@@ -8,7 +8,9 @@
       xmlns:viewmodels="clr-namespace:Pinball_Aegis.ViewModels"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1100"
-      Title="Supervision Flotte &amp; Sécurité TPM">
+      Title="Supervision Flotte &amp; Sécurité TPM"
+      ScrollViewer.VerticalScrollBarVisibility="Disabled"
+      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -93,7 +95,10 @@
                               HeadersVisibility="Column"
                               Background="Transparent"
                               BorderThickness="0"
-                              RowHeight="42">
+                              RowHeight="42"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.CanContentScroll="True">
 
                     <!-- Column headers style -->
                     <DataGrid.ColumnHeaderStyle>

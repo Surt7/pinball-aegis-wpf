@@ -30,20 +30,26 @@ public sealed class MachineItem
     
     public string CertExpirationColor => CertStatus switch
     {
-        2 => "#EF4444", // Revoked (Red)
         _ when !CertExpiresAtUtc.HasValue => "#64748B", // No certificate (Slate / Gray)
+        2 => "#EF4444", // Revoked (Red)
+        3 => "#64748B", // Superseded / Replaced (Slate / Gray)
         _ when IsCertExpired => "#EF4444", // Expired (Red)
-        _ when IsCertExpiringSoon => "#F59E0B", // Expiring soon <= 30 days (Amber)
-        _ => "#10B981" // Valid (Emerald Green)
+        0 when IsCertExpiringSoon => "#F59E0B", // Expiring soon <= 30 days (Amber)
+        0 => "#10B981", // Valid (Emerald Green)
+        1 when !IsCertExpired => "#F59E0B", // Anomaly: Status is 1 (Inactive in DB) but expiration is in the future (Amber)
+        _ => "#64748B" // Inactive / Other (Slate / Gray)
     };
 
     public string CertStatusText => CertStatus switch
     {
-        2 => "Certificat matériel TPM révoqué",
         _ when !CertExpiresAtUtc.HasValue => "Puce TPM non enrôlée / Aucun certificat",
+        2 => "Certificat matériel TPM révoqué",
+        3 => "Certificat matériel remplacé (obsolète)",
         _ when IsCertExpired => $"Certificat expiré le {CertExpiresAtUtc:dd/MM/yyyy}",
-        _ when IsCertExpiringSoon => $"Expire bientôt le {CertExpiresAtUtc:dd/MM/yyyy} ({Math.Max(0, (int)(CertExpiresAtUtc.Value - DateTime.UtcNow).TotalDays)}j restants)",
-        _ => $"Certificat TPM valide jusqu'au {CertExpiresAtUtc:dd/MM/yyyy}"
+        0 when IsCertExpiringSoon => $"Expire bientôt le {CertExpiresAtUtc:dd/MM/yyyy} ({Math.Max(0, (int)(CertExpiresAtUtc.Value - DateTime.UtcNow).TotalDays)}j restants)",
+        0 => $"Certificat TPM valide jusqu'au {CertExpiresAtUtc:dd/MM/yyyy}",
+        1 when !IsCertExpired => $"⚠️ Statut inactif en BDD (expiration prévue le {CertExpiresAtUtc:dd/MM/yyyy})",
+        _ => "Certificat non actif"
     };
 
     public string StatusText => MachineStatus switch

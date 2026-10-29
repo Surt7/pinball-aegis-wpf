@@ -38,6 +38,15 @@ public partial class MachineAttestationViewModel : ObservableObject
     private string _attestationStatus = "";
 
     [ObservableProperty]
+    private string _attestationStatusColor = "#E2E8F0";
+
+    [ObservableProperty]
+    private string _attestationStatusBorder = "Transparent";
+
+    [ObservableProperty]
+    private string _attestationStatusBackground = "Transparent";
+
+    [ObservableProperty]
     private string _reissuedToken = "";
 
     [ObservableProperty]
@@ -88,13 +97,21 @@ public partial class MachineAttestationViewModel : ObservableObject
 
     partial void OnSelectedMachineChanged(MachineItem? value)
     {
-        AttestationStatus = "";
+        SetAttestationStatus("", "#E2E8F0");
         IsTokenReissued = false;
         ReissuedToken = "";
         SecurityDetails = null;
         OnPropertyChanged(nameof(HasSecurityDetails));
         OnPropertyChanged(nameof(CanReissueToken));
         OnPropertyChanged(nameof(ReissueButtonText));
+    }
+
+    private void SetAttestationStatus(string status, string textColor, string borderColor = "Transparent", string backgroundColor = "Transparent")
+    {
+        AttestationStatus = status;
+        AttestationStatusColor = textColor;
+        AttestationStatusBorder = borderColor;
+        AttestationStatusBackground = backgroundColor;
     }
     
     
@@ -172,7 +189,7 @@ public partial class MachineAttestationViewModel : ObservableObject
             ? SelectedMachine.SerialNumber 
             : SelectedMachine.MachineName;
 
-        AttestationStatus = $"Interrogation de l'autorité Step-CA et du registre matériel pour {targetId}...";
+        SetAttestationStatus($"Interrogation de l'autorité Step-CA et du registre matériel pour {targetId}...", "#38BDF8", "#38BDF84D", "#1A38BDF8");
 
         try
         {
@@ -182,38 +199,46 @@ public partial class MachineAttestationViewModel : ObservableObject
 
             if (sec is null)
             {
-                AttestationStatus = $"❌ Erreur : Impossible de joindre le registre de sécurité pour {targetId}.";
+                SetAttestationStatus($"❌ Erreur : Impossible de joindre le registre de sécurité pour {targetId}.", "#EF4444", "#EF44444D", "#1AEF4444");
                 return;
             }
 
             if (!sec.HasAttachedDevice)
             {
-                AttestationStatus = $"❌ REJETÉ : Aucun périphérique physique (TPM) n'est rattaché à ce flipper.";
+                SetAttestationStatus($"❌ REJETÉ : Aucun périphérique physique (TPM) n'est rattaché à ce flipper.", "#EF4444", "#EF44444D", "#1AEF4444");
             }
             else if (!sec.HasCertificate)
             {
-                AttestationStatus = $"⏳ EN ATTENTE : Puce TPM ({sec.DevicePhysicalSerial}) détectée mais aucun certificat émis. Enrôlement requis.";
+                SetAttestationStatus($"⏳ EN ATTENTE : Puce TPM ({sec.DevicePhysicalSerial}) détectée mais aucun certificat émis. Enrôlement requis.", "#38BDF8", "#38BDF84D", "#1A38BDF8");
             }
             else if (sec.CertStatus == 2)
             {
-                AttestationStatus = $"❌ RÉVOQUÉ : Le certificat matériel {sec.CertSerialNumber} est révoqué dans la CRL.";
+                SetAttestationStatus($"❌ RÉVOQUÉ : Le certificat matériel {sec.CertSerialNumber} est révoqué dans la CRL.", "#EF4444", "#EF44444D", "#1AEF4444");
+            }
+            else if (sec.CertStatus == 3)
+            {
+                SetAttestationStatus($"🔄 REMPLACÉ : Le certificat matériel {sec.CertSerialNumber} a été remplacé (obsolète).", "#94A3B8", "#94A3B84D", "#1A94A3B8");
             }
             else if (sec.IsExpired)
             {
-                AttestationStatus = $"⚠️ EXPIRÉ : Le certificat matériel {sec.CertSerialNumber} a expiré le {sec.NotAfterUtc:dd/MM/yyyy}.";
+                SetAttestationStatus($"⚠️ EXPIRÉ : Le certificat matériel {sec.CertSerialNumber} a expiré le {sec.NotAfterUtc:dd/MM/yyyy}.", "#EF4444", "#EF44444D", "#1AEF4444");
+            }
+            else if (sec.CertStatus == 1)
+            {
+                SetAttestationStatus($"⚠️ ANOMALIE : Le certificat {sec.CertSerialNumber} est marqué inactif en BDD (Status=1) mais sa date d'expiration ({sec.NotAfterUtc:dd/MM/yyyy}) est encore valide.", "#F59E0B", "#F59E0B4D", "#1AF59E0B");
             }
             else if (sec.IsValid)
             {
-                AttestationStatus = $"✔ CERTIFIÉ : Certificat {sec.CertSerialNumber} valide jusqu'au {sec.NotAfterUtc:dd/MM/yyyy} ({sec.IssuerDn}). mTLS actif.";
+                SetAttestationStatus($"✔ CERTIFIÉ : Certificat {sec.CertSerialNumber} valide jusqu'au {sec.NotAfterUtc:dd/MM/yyyy} ({sec.IssuerDn}). mTLS actif.", "#10B981", "#10B9814D", "#1A10B981");
             }
             else
             {
-                AttestationStatus = $"ℹ Statut matériel : {sec.StatusExplanation}";
+                SetAttestationStatus($"ℹ Statut matériel : {sec.StatusExplanation}", "#F59E0B", "#F59E0B4D", "#1AF59E0B");
             }
         }
         catch (Exception ex)
         {
-            AttestationStatus = $"Erreur d'attestation mTLS : {ex.Message}";
+            SetAttestationStatus($"Erreur d'attestation mTLS : {ex.Message}", "#EF4444", "#EF44444D", "#1AEF4444");
         }
     }
 
